@@ -1,31 +1,28 @@
-import threading
 from elevator import Elevator
-from request import Request
-import signal
-import sys
+from rrequest import OutDoorRequest
+from rrequest import InDoorRequest
+import time
+from floor import Direction
 
 active = True
-def ctrl_c_hdlr(signum, frame):
-    print ("sig handlered")
-    global active
-    active = False
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, ctrl_c_hdlr)
 class system:
     def __init__(self, N=4, floors=50):
         self.number_of_elevators = N
-        self.elevators = [Elevator(floors, idx) for idx in range(N)]
+        self.elevators = [Elevator(floors, idx, 0, floors) for idx in range(N)]
 
 building = system()
 
 while active:
     try:
         result = input().split()
-        index, floor = result[0], result[1]
-        if floor.isdigit() and index.isdigit():
-            index, floor = int(index), int(floor)
-            building.elevators[index].addRequest(Request(floor))
+        index, floor, direction = result[0], result[1], result[2]
+        if floor.isdigit() and index.isdigit() and direction.isdigit():
+            index, floor, direction = int(index), int(floor), int(direction)
+            if direction == 0:
+                direction = Direction.UP
+            else:
+                direction = Direction.DOWN
+            building.elevators[index].addRequest(OutDoorRequest(floor, direction))
         else:
             print ("invalid input")
     except Exception as e:
